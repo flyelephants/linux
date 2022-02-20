@@ -1,0 +1,79 @@
+#include <stdio.h>
+/**
+ * You can use the macro 'PUTCH' to write a character to screen.
+ */
+#define PUTCH(ch) putchar(ch)
+
+#if 1
+void ezprintf(const char * format, void ** args) {
+	const char* p = format;
+	while(*p){
+		if(*p != '%'){
+			putchar(*p);
+		} else {
+			switch(*++p) {
+				case 'x':
+				{
+					unsigned int hex = *(unsigned *)*args++;
+					while(hex != 0 && (hex & 0xf0000000)==0)
+					hex <<= 4;
+					do {
+						putchar("0123456789abcdef"[(hex & 0xf0000000)>>28]);
+						hex <<= 4;
+					}while(hex);
+				}
+				break;
+				case 'o':
+				{
+					unsigned int hex = *(unsigned *)*args++;
+					while(hex != 0 && (hex & 0xf0000000)==0)
+					hex <<= 4;
+					do {
+						putchar("01234567"[(hex & 0xf0000000)>>28]);
+						hex <<= 4;
+					}while(hex);
+				}
+				break;
+				case 's':
+				{
+					char *sp = (char*)*args++;
+					while(*sp) putchar(*sp++);
+				}
+				break;
+				case 'c':
+				putchar(*(char*)*args++);
+				break;
+				case '%':
+				putchar('%');
+				break;
+				case 0:
+				default:
+				return;
+			}
+		}
+		++p;
+	}
+}
+#endif
+/**
+ * Test ezprintf
+ */
+int main() {
+	const char format[] = "Welcome to %s, do you like %o%c\n";
+	
+	const char str[] = "CredO~";
+	//unsigned int int32 = 0xbeef;
+	unsigned int int32 = 0xb66;
+	char ch = '?';
+
+	void * args[] = {
+		(void*)str,//args[0]
+		(void*)&int32,//args[1]
+		(void*)&ch//args[2]
+	};
+	ezprintf(format, args);
+	// Should be same with
+	printf(format, str, int32, ch);
+
+	return 0;
+}
